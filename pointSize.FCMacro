@@ -1,0 +1,34 @@
+# FreeCAD macro to change the point size of all objects on active document.
+# Better legibility and easy to selects points on objects.
+# 
+# This file is released under the MIT License.
+# Author: Mario Gajardo Tassara v1.0
+# 
+# Version:
+# - 1.0: 2025-29-03
+#       * first release
+
+__title__ = 'Point Size'
+__version__ = '1.0'
+__date__ = '2025/29/03'
+__icon__ = ''
+
+doc = FreeCAD.ActiveDocument
+
+# vertex size
+vertex_size = 9.0 
+
+for obj in doc.Objects:
+	if hasattr(obj.ViewObject, "PointSize"):
+		obj.ViewObject.PointSize = vertex_size
+		
+# Get the FreeCAD parameter group for 3D view settings
+param_group = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/View")
+
+# Set the marker size
+param_group.SetInt("MarkerSize", vertex_size)
+
+# Apply changes
+FreeCADGui.updateGui()
+		
+print('Macro finished.')
