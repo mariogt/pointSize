@@ -1,12 +1,8 @@
 # FreeCAD macro, to change the point size of all body objects and
 # sketch diagrams in the active document.
 #
-# Better legibility and easy to select points on the current view.
-#
-# FreeCAD macro, to change the point size of all body objects and
-# sketch diagrams in the active document.
-#
-# Better legibility and easy to select points on the current view.
+# This is a convenient, and user-friendly method, for changing the size of
+# those ultra-small vertex points, both in the parts design and sketch view.
 #
 # This file is released under the MIT License.
 # Author: Mario Gajardo Tassara v1.0
@@ -16,26 +12,69 @@
 #       * first release
 
 __title__ = 'Point Size'
+__author__ = 'Mario Gajardo Tassara'
 __version__ = '1.0'
 __date__ = '2025/29/03'
 __icon__ = ''
 
-doc = FreeCAD.ActiveDocument
+# imports
+from PySide import QtCore, QtGui
+from PySide.QtGui import QMessageBox
+import FreeCADGui as Gui
 
-# vertex size
-vertex_size = 9.0
+class PointSize():
+  def __init__(self):
+    self.doc = FreeCAD.ActiveDocument
+    self.pointSize = None
+    self.dialog = None
+    self.textBox1 = None
+    self.dialog = QtGui.QDialog()
+    self.dialog.resize(50, 100)
+    self.dialog.setWindowTitle("Point Size")
+    layout1 = QtGui.QVBoxLayout(self.dialog)
+    label1 = QtGui.QLabel("Enter the new point size")
 
-for obj in doc.Objects:
-	if hasattr(obj.ViewObject, "PointSize"):
-		obj.ViewObject.PointSize = vertex_size
+    # Get the current marker size, for user reference
+    param_group = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/View")
+    currentPointSize = param_group.GetInt("MarkerSize")
 
-# Get the FreeCAD parameter group for 3D view settings
-param_group = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/View")
+    quadsGrp = QtGui.QButtonGroup()
+    layout1.addWidget(label1)
+    self.textBox1 = QtGui.QLineEdit()
+    self.textBox1.setText(str(currentPointSize))
+    layout1.addWidget(self.textBox1)
 
-# Set the marker size
-param_group.SetInt("MarkerSize", vertex_size)
+    buttonBox1 = QtGui.QDialogButtonBox(self.dialog)
+    buttonBox1.setOrientation(QtCore.Qt.Horizontal)
+    buttonBox1.setStandardButtons(QtGui.QDialogButtonBox.Cancel | QtGui.QDialogButtonBox.Ok)
+    layout1.addWidget(buttonBox1)
+    QtCore.QObject.connect(buttonBox1, QtCore.SIGNAL("accepted()"), self.modPointSize)
+    QtCore.QObject.connect(buttonBox1, QtCore.SIGNAL("rejected()"), self.close)
+    QtCore.QMetaObject.connectSlotsByName(self.dialog)
+    self.dialog.show()
+    self.dialog.exec_()
 
-# Apply changes
-FreeCADGui.updateGui()
+  def modPointSize(self):
+    if self.textBox1.text() == "" :
+      QMessageBox.information(None, 'Alert!', 'The required data is missing\n')
+    else:
+      i = App.Units.parseQuantity(self.textBox1.text())
+      self.pointSize = int(i)
 
-print('Macro finished.')
+      for obj in self.doc.Objects:
+    	    if hasattr(obj.ViewObject, "PointSize"):
+    		    obj.ViewObject.PointSize = self.pointSize
+
+      # Get the FreeCAD parameter group for 3D view settings
+      param_group = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/View")
+      # Set the marker size
+      param_group.SetInt("MarkerSize", self.pointSize)
+      self.close()
+
+      # Apply changes
+      Gui.updateGui()
+
+  def close(self):
+    self.dialog.hide()
+
+PointSize()
