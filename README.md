@@ -1,2 +1,3 @@
 # pointSize
-Freecad plugin for setting the point size of  body objects and sketch diagrams, on your active document.
+
+FreeCAD macro, to change the point size of all body objects and sketch diagrams in the active document. Better legibility and easy to select points on the current view.
