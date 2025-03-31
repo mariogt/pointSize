@@ -29,7 +29,7 @@ class PointSize():
     self.dialog = None
     self.textBox1 = None
     self.dialog = QtGui.QDialog()
-    self.dialog.setFixedSize(180, 100)
+    self.dialog.setFixedSize(200, 100)
     self.dialog.setWindowTitle("Point Size")
     layout1 = QtGui.QVBoxLayout(self.dialog)
     label1 = QtGui.QLabel("Enter the new point size")
